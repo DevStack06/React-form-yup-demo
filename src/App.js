@@ -1,4 +1,3 @@
-import React from "react";
 import Login from "./form/login";
 import Test1 from "./form/test";
 

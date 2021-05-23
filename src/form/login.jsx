@@ -1,4 +1,3 @@
-import React from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
@@ -7,12 +6,14 @@ import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
-import Divider from "@material-ui/core/Divider";
 import FormInput from "./input";
 import { useForm, FormProvider } from "react-hook-form";
 import Address from "./Address";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import AutoComplete from "./Title";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
@@ -26,22 +27,15 @@ const validationSchema = yup.object().shape({
   countryV: yup.string().required("country Validation Field is Required"),
 });
 
-const useStyle = makeStyles((theme) => ({
+const useStyle = makeStyles(() => ({
   root: {
     flexGrow: 1,
   },
 
-  card: {
-    borderRadius: 8,
-  },
-  container: {
-    marginTop: "5vh",
-    height: "95vh",
-    width: "60vw",
-  },
   Maimgrid1: {
     backgroundColor: "#fff",
-    height: "90vh",
+    height: "100vh",
+    width: "100vw",
     marginLeft: "25%",
     display: "block",
     // width: "100%",
@@ -72,6 +66,20 @@ const useStyle = makeStyles((theme) => ({
 
 const Login = () => {
   const classes = useStyle();
+  const [data, setData] = useState([]);
+  const [fetching, setfetching] = useState(true);
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = () => {
+    axios.get("https://jsonplaceholder.typicode.com/todos").then((data) => {
+      setData(data.data);
+      setfetching(false);
+    });
+  };
+
   const methods = useForm({
     resolver: yupResolver(validationSchema),
   });
@@ -85,82 +93,83 @@ const Login = () => {
     console.log("ere");
   };
 
-  return (
+  return fetching ? (
+    <div>Loading the data</div>
+  ) : (
     <div className={classes.root}>
       <CssBaseline />
-      <Container className={classes.container}>
-        <Card className={classes.card} elevation={20}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} className={classes.Maimgrid1}>
-              <Grid item xs={12}>
-                <Typography variant="h4" gutterBottom className={classes.title}>
-                  Sign in to Web App
-                </Typography>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} className={classes.Maimgrid1}>
+          <Grid item xs={12}>
+            <Typography variant="h4" gutterBottom className={classes.title}>
+              Sign in to Web App
+            </Typography>
+          </Grid>
+
+          <Box component="span" m={1}></Box>
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <FormInput
+                    name="nameV"
+                    placeholder="Name"
+                    required={true}
+                    errorobj={errors}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <FormInput
+                    name="phoneV"
+                    placeholder="Phone Number"
+                    required={true}
+                    errorobj={errors}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <FormInput
+                    name="emailV"
+                    placeholder="Email"
+                    required={true}
+                    errorobj={errors}
+                  />
+                </Grid>
               </Grid>
-
-              <Box component="span" m={1}></Box>
-              <FormProvider {...methods}>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <FormInput
-                        name="nameV"
-                        placeholder="Name"
-                        required={true}
-                        errorobj={errors}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <FormInput
-                        name="phoneV"
-                        placeholder="Phone Number"
-                        required={true}
-                        errorobj={errors}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <FormInput
-                        name="emailV"
-                        placeholder="Email"
-                        required={true}
-                        errorobj={errors}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Address
-                      placeholder="Choose a country"
-                      name="countryV"
-                      required={true}
-                      errorobj={errors}
-                    />
-                  </Grid>
-                </form>
-              </FormProvider>
-
-              <Box component="span" m={1}></Box>
-
               <Grid item xs={12}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Forgot Your Password? SignUp
-                </Typography>
+                <Address
+                  placeholder="Choose a country"
+                  name="countryV"
+                  required={true}
+                  errorobj={errors}
+                />
               </Grid>
+            </form>
+          </FormProvider>
 
-              <Box m={4}></Box>
+          <Box component="span" m={1}></Box>
 
-              <Grid item xs={12}>
-                <Button
-                  variant="contained"
-                  className={classes.button}
-                  onClick={handleSubmit(onSubmit)}
-                >
-                  Sign In
-                </Button>
-              </Grid>
+          <Grid item xs={12}>
+            <Typography variant="subtitle2" gutterBottom>
+              Forgot Your Password? SignUp
+            </Typography>
+          </Grid>
+          <Box m={4}></Box>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              className={classes.button}
+              onClick={handleSubmit(onSubmit)}
+            >
+              Sign In
+            </Button>
+            <Box m={4}></Box>
+            <Grid item xs={12}>
+              <AutoComplete suggestions={data} />
             </Grid>
           </Grid>
-        </Card>
-      </Container>
+        </Grid>
+      </Grid>
     </div>
   );
 };
