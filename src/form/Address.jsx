@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { makeStyles } from "@material-ui/core/styles";
@@ -46,6 +46,7 @@ export default function CountrySelect(props) {
   const classes = useStyles();
   const { control } = useFormContext();
   const { name, placeholder, required, errorobj } = props;
+  let [data, setData] = useState([]);
   let isError = false;
   let errorMessage = "";
 
@@ -53,6 +54,8 @@ export default function CountrySelect(props) {
     isError = true;
     errorMessage = errorobj[name].message;
   }
+
+  useEffect(() => {});
 
   return (
     <Controller
